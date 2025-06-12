@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级留念网站</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light background for a clean look */
+        }
+        /* Custom styles for rounded corners and shadow */
+        .card {
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+        }
+        .container {
+            max-width: 1200px; /* Limit content width */
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8 text-gray-800">
+
+    <!-- Firebase Setup (for potential future dynamic features like data storage) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Access global variables for Firebase configuration and auth token
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Sign in anonymously or with custom token
+        async function authenticateAndSetUserId() {
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                const userId = auth.currentUser?.uid || crypto.randomUUID();
+                console.log("Firebase initialized. User ID:", userId);
+                // Display userId on the page
+                const userIdElement = document.getElementById('userIdDisplay');
+                if (userIdElement) {
+                    userIdElement.textContent = `当前用户ID: ${userId}`;
+                }
+            } catch (error) {
+                console.error("Firebase authentication failed:", error);
+                const userIdElement = document.getElementById('userIdDisplay');
+                if (userIdElement) {
+                    userIdElement.textContent = `认证失败，用户ID: ${crypto.randomUUID()}`;
+                }
+            }
+        }
+        authenticateAndSetUserId();
+    </script>
+
+    <!-- 头部 -->
+    <header class="w-full text-center mb-10 py-6 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-2">我们的班级留念</h1>
+        <p class="text-lg sm:text-xl text-blue-100">永远的青春，不变的情谊</p>
+    </header>
+
+    <!-- 用户ID显示 -->
+    <div id="userIdDisplay" class="text-sm text-gray-600 mb-8 p-3 bg-white rounded-lg shadow-sm">
+        加载用户ID...
+    </div>
+
+    <!-- 照片墙 -->
+    <section class="w-full container bg-white p-8 mb-10 card">
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">珍贵瞬间</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- 示例图片 -->
+            <div class="rounded-lg overflow-hidden shadow-md group">
+                <img src="https://placehold.co/400x300/a0aec0/ffffff?text=毕业照" alt="毕业照 [Image of Graduation photo]" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
+                <p class="p-3 text-center text-sm bg-gray-50 text-gray-700">毕业照</p>
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md group">
+                <img src="https://placehold.co/400x300/667eea/ffffff?text=春游" alt="春游 [Image of Spring outing]" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
+                <p class="p-3 text-center text-sm bg-gray-50 text-gray-700">春游</p>
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md group">
+                <img src="https://placehold.co/400x300/4299e1/ffffff?text=运动会" alt="运动会 [Image of Sports meet]" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
+                <p class="p-3 text-center text-sm bg-gray-50 text-gray-700">运动会</p>
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md group">
+                <img src="https://placehold.co/400x300/48bb78/ffffff?text=课堂一角" alt="课堂一角 [Image of Classroom corner]" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
+                <p class="p-3 text-center text-sm bg-gray-50 text-gray-700">课堂一角</p>
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md group">
+                <img src="https://placehold.co/400x300/ecc94b/ffffff?text=同学聚会" alt="同学聚会 [Image of Class reunion]" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
+                <p class="p-3 text-center text-sm bg-gray-50 text-gray-700">同学聚会</p>
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md group">
+                <img src="https://placehold.co/400x300/ed8936/ffffff?text=班级活动" alt="班级活动 [Image of Class activity]" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
+                <p class="p-3 text-center text-sm bg-gray-50 text-gray-700">班级活动</p>
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md group">
+                <img src="https://placehold.co/400x300/e53e3e/ffffff?text=趣味竞赛" alt="趣味竞赛 [Image of Fun competition]" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
+                <p class="p-3 text-center text-sm bg-gray-50 text-gray-700">趣味竞赛</p>
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-md group">
+                <img src="https://placehold.co/400x300/805ad5/ffffff?text=校园风景" alt="校园风景 [Image of Campus scenery]" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
+                <p class="p-3 text-center text-sm bg-gray-50 text-gray-700">校园风景</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 同学联系方式 -->
+    <section class="w-full container bg-white p-8 mb-10 card">
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">同学名录</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 示例同学卡片 -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
+                <img src="https://placehold.co/120x120/d1d5db/374151?text=张三" alt="张三 [Image of Zhang San]" class="w-24 h-24 rounded-full object-cover mb-4 border-2 border-indigo-400">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">张三</h3>
+                <p class="text-gray-600 mb-1">电子邮件: <a href="mailto:zhangsan@example.com" class="text-blue-600 hover:underline">zhangsan@example.com</a></p>
+                <p class="text-gray-600 mb-1">手机: 138-XXXX-XXXX</p>
+                <p class="text-gray-600">微信: zhangsan_wx</p>
+            </div>
+            <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
+                <img src="https://placehold.co/120x120/d1d5db/374151?text=李四" alt="李四 [Image of Li Si]" class="w-24 h-24 rounded-full object-cover mb-4 border-2 border-green-400">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">李四</h3>
+                <p class="text-gray-600 mb-1">电子邮件: <a href="mailto:lisi@example.com" class="text-blue-600 hover:underline">lisi@example.com</a></p>
+                <p class="text-gray-600 mb-1">手机: 139-XXXX-XXXX</p>
+                <p class="text-gray-600">微信: lisi_wx</p>
+            </div>
+            <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
+                <img src="https://placehold.co/120x120/d1d5db/374151?text=王五" alt="王五 [Image of Wang Wu]" class="w-24 h-24 rounded-full object-cover mb-4 border-2 border-red-400">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">王五</h3>
+                <p class="text-gray-600 mb-1">电子邮件: <a href="mailto:wangwu@example.com" class="text-blue-600 hover:underline">wangwu@example.com</a></p>
+                <p class="text-gray-600 mb-1">手机: 137-XXXX-XXXX</p>
+                <p class="text-gray-600">微信: wangwu_wx</p>
+            </div>
+            <!-- 可以根据需要添加更多同学卡片 -->
+        </div>
+    </section>
+
+    <!-- 底部 -->
+    <footer class="w-full text-center py-6 text-gray-500 text-sm">
+        <p>&copy; 2025 班级留念网站. 保留所有权利.</p>
+    </footer>
+
+</body>
+</html>
