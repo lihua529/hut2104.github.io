@@ -9,12 +9,11 @@
     <!-- Google Fonts - Inter for a clean, modern typeface -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Apply Inter font family and a dark background color for the night sky effect */
+        /* Apply Inter font family */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0d1117; /* Dark bluish-black for the night sky */
-            /* REMOVED: overflow: hidden; - This was preventing scrolling */
-            /* REMOVED: position: relative; - Not strictly needed for current layout and stars */
+            /* Body itself no longer has a background color; the starry-background-container will provide it */
+            /* Ensure body can scroll its content if it overflows */
         }
         /* Custom styles for elements with rounded corners and shadow, consistent with Tailwind's rounded-xl and shadow-md */
         .card {
@@ -52,16 +51,16 @@
             }
         }
 
-        /* Base styles for stars */
+        /* Base styles for stars - now positioned absolutely within the fixed background container */
         .star {
             position: absolute;
             background: white;
             border-radius: 50%;
             animation: twinkle 1.5s infinite alternate; /* Twinkle animation */
-            z-index: -1; /* Place behind content */
+            /* z-index removed here as parent container manages it */
         }
 
-        /* Base styles for shooting stars */
+        /* Base styles for shooting stars - now positioned absolutely within the fixed background container */
         .shooting-star {
             position: absolute;
             width: 100px; /* Length of the tail */
@@ -70,7 +69,7 @@
             background: linear-gradient(to left, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
             transform-origin: 100% 50%; /* Origin for rotation: right center of the tail */
             animation: shoot linear infinite; /* Shooting animation */
-            z-index: -1; /* Place behind content */
+            /* z-index removed here as parent container manages it */
             pointer-events: none; /* Ensure shooting stars don't interfere with mouse events */
         }
 
@@ -102,16 +101,16 @@
 </head>
 <body class="min-h-screen flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8 text-gray-800">
 
+    <!-- Starry Background Container - fixed to viewport and behind content -->
+    <div id="starry-background-container" class="fixed inset-0 bg-[#0d1117] z-[-1] overflow-hidden"></div>
+
     <!-- Firebase Setup Script -->
     <!-- This script handles Firebase initialization and user authentication (anonymous or custom token).
-         It uses global variables __app_id, __firebase_config, and __initial_auth_token provided by the environment.
-         The authenticated user ID is then displayed on the page. -->
+         It uses global variables __app_id, __firebase_config, and __initial_auth_token provided by the environment. -->
     <script type="module">
-        // Firebase SDK imports for app initialization, authentication, and Firestore
+        // Firebase SDK imports for app initialization and authentication
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        // Removed Firestore specific imports as message board functionality is removed
-        // import { getFirestore, collection, addDoc, query, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Access global variables for Firebase configuration and auth token
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -122,8 +121,6 @@
         const app = initializeApp(firebaseConfig);
         // Get Auth instance
         const auth = getAuth(app);
-        // Removed Firestore instance initialization as it's no longer used for messaging
-        // const db = getFirestore(app);
 
         // Global variable to store the authenticated user ID (though not used directly for display anymore)
         let currentUserId = null;
@@ -139,23 +136,12 @@
                 currentUserId = auth.currentUser?.uid || crypto.randomUUID();
                 console.log("Firebase initialized. User ID:", currentUserId);
 
-                // No Firestore-dependent features to initialize after authentication for this version
-                // initializeFirestoreFeatures();
-
             } catch (error) {
                 console.error("Firebase authentication failed:", error);
-                // Fallback to a random ID if authentication fails
-                currentUserId = crypto.randomUUID();
-                console.warn("Using random user ID due to authentication failure. (No Firestore features in this version)");
+                currentUserId = crypto.randomUUID(); // Fallback to a random ID if authentication fails
+                console.warn("Using random user ID due to authentication failure.");
             }
         }
-
-        // Removed initializeFirestoreFeatures function as it's no longer needed
-        /*
-        function initializeFirestoreFeatures() {
-            // ... (Removed message board related JS code)
-        }
-        */
 
         // Call the authentication function when the script loads
         authenticateAndSetUserId();
@@ -163,6 +149,7 @@
         // --- Dynamic Star and Shooting Star Generation ---
         const numStars = 100; // Number of twinkling stars
         const numShootingStars = 5; // Maximum number of shooting stars on screen at once
+        const starryBackgroundContainer = document.getElementById('starry-background-container');
 
         // Function to create a single static background star
         function createStar() {
@@ -174,7 +161,7 @@
             star.style.left = `${Math.random() * 100}vw`; // Random horizontal position across viewport width
             star.style.top = `${Math.random() * 100}vh`;  // Random vertical position across viewport height
             star.style.animationDelay = `${Math.random() * 2}s`; // Random delay for twinkle effect to vary appearance
-            document.body.appendChild(star);
+            starryBackgroundContainer.appendChild(star); // Append to the background container
         }
 
         // Function to create a single shooting star
@@ -182,7 +169,6 @@
             const shootingStar = document.createElement('div');
             shootingStar.classList.add('shooting-star');
             // Random start position, adjusted to ensure they begin off-screen in the top-left quadrant
-            // Start further left/up to allow the full tail to enter
             const startX = Math.random() * 30 - 30; // Start between -30vw and 0vw
             const startY = Math.random() * 30 - 30; // Start between -30vh and 0vh
             shootingStar.style.left = `${startX}vw`;
@@ -190,7 +176,7 @@
             // Random duration for the shoot animation to vary speeds
             shootingStar.style.animationDuration = `${Math.random() * 3 + 4}s`; // 4 to 7 seconds
             shootingStar.style.animationDelay = `${Math.random() * 5}s`; // Random delay before it starts shooting
-            document.body.appendChild(shootingStar);
+            starryBackgroundContainer.appendChild(shootingStar); // Append to the background container
 
             // Remove the shooting star after its animation completes to prevent accumulation in the DOM
             shootingStar.addEventListener('animationend', () => {
@@ -204,43 +190,12 @@
         }
 
         // Periodically generate new shooting stars to maintain the dynamic effect
-        // Only add a new shooting star if the current number on screen is less than desired maximum
         setInterval(() => {
-            if (document.querySelectorAll('.shooting-star').length < numShootingStars) {
+            if (document.querySelectorAll('#starry-background-container .shooting-star').length < numShootingStars) {
                 createShootingStar();
             }
         }, 3000); // Attempt to create a new shooting star approximately every 3 seconds
 
-        // Removed client-side messaging functionality as it's no longer needed
-        /*
-        document.addEventListener('DOMContentLoaded', () => {
-            const messageForm = document.getElementById('messageForm');
-            const messageTextarea = document.getElementById('messageTextarea');
-            const messagesDisplay = document.getElementById('messagesDisplay');
-
-            if (messageForm) {
-                messageForm.addEventListener('submit', (event) => {
-                    event.preventDefault(); // Prevent default form submission
-
-                    const messageContent = messageTextarea.value.trim();
-                    if (messageContent) {
-                        const now = new Date();
-                        const timestamp = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-                        const username = `访客-${Math.floor(Math.random() * 1000)}`; // Simple random username
-
-                        const messageElement = document.createElement('div');
-                        messageElement.classList.add('bg-blue-50', 'p-3', 'rounded-lg', 'shadow-sm', 'mb-2', 'text-blue-900', 'break-words');
-                        messageElement.innerHTML = `
-                            <p class="font-semibold">${username} <span class="text-xs text-gray-500 ml-2">${timestamp}</span></p>
-                            <p>${messageContent}</p>
-                        `;
-                        messagesDisplay.prepend(messageElement); // Add new message to the top
-                        messageTextarea.value = ''; // Clear textarea
-                    }
-                });
-            }
-        });
-        */
     </script>
 
     <!-- Header Section -->
