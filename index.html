@@ -18,105 +18,118 @@
         }
         body {
             font-family: 'Inter', sans-serif;
+            /* Flexbox utilities for content centering are still on body */
         }
         /* Custom styles for elements with rounded corners and shadow */
         .card {
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-radius: 0.75rem; /* Equivalent to Tailwind's rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Equivalent to Tailwind's shadow-md */
         }
         /* Limit content width for better readability on larger screens */
         .container {
             max-width: 1200px;
         }
+
         /* Star animation - twinkling effect */
         @keyframes twinkle {
             0%, 100% { opacity: 0.5; transform: scale(1); }
             50% { opacity: 1; transform: scale(1.2); }
         }
+
         /* Shooting star animation */
         @keyframes shoot {
             0% {
+                /* Start off-screen top-left, rotated for diagonal movement */
                 transform: translateX(-10vw) translateY(-10vh) rotate(45deg);
-                opacity: 0;
+                opacity: 0; /* Start invisible */
             }
             10% {
-                opacity: 1;
+                opacity: 1; /* Become visible shortly after starting */
             }
             90% {
-                opacity: 1;
+                opacity: 1; /* Stay visible */
             }
             100% {
+                /* End off-screen bottom-right */
                 transform: translateX(110vw) translateY(110vh) rotate(45deg);
-                opacity: 0;
+                opacity: 0; /* Fade out at the end */
             }
         }
-        /* Base styles for stars */
+
+        /* Base styles for stars - now positioned absolutely within the fixed background container */
         .star {
             position: absolute;
             background: white;
             border-radius: 50%;
-            animation: twinkle 1.5s infinite alternate;
+            animation: twinkle 1.5s infinite alternate; /* Twinkle animation */
         }
-        /* Base styles for shooting stars */
+
+        /* Base styles for shooting stars - now positioned absolutely within the fixed background container */
         .shooting-star {
             position: absolute;
-            width: 100px;
-            height: 4px;
+            width: 100px; /* Length of the tail */
+            height: 4px; /* Thickness of the tail */
+            /* Tail goes from opaque white at the head (right) to transparent at the end (left) */
             background: linear-gradient(to left, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
-            transform-origin: 100% 50%;
-            animation: shoot linear infinite;
-            pointer-events: none;
+            transform-origin: 100% 50%; /* Origin for rotation: right center of the tail */
+            animation: shoot linear infinite; /* Shooting animation */
+            pointer-events: none; /* Ensure shooting stars don't interfere with mouse events */
         }
+
         /* Pseudo-element for the yellow five-pointed star head of the shooting star */
         .shooting-star::before {
             content: '';
             position: absolute;
-            right: 0;
-            top: 50%;
+            right: 0; /* Position at the very right of the shooting-star div (tail) */
+            top: 50%; /* Center vertically relative to the tail's height */
+            /* Translate to move the star head outside the tail and center it vertically and horizontally */
             transform: translate(50%, -50%);
-            width: 16px;
-            height: 16px;
+            width: 16px; /* Size of the star head */
+            height: 16px; /* Size of the star head */
             background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"><polygon points="5,0 6.18,3.62 10,3.82 6.91,6.18 8.09,9.82 5,7.5 1.91,9.82 3.09,6.18 0,3.82 3.82,3.62" fill="%23FFD700" stroke="%23FFD700" stroke-width="0.5"/></svg>');
             background-size: contain;
             background-repeat: no-repeat;
-            box-shadow: 0 0 10px #FFD700, 0 0 20px rgba(255, 215, 0, 0.5);
-            z-index: 1;
+            box-shadow: 0 0 10px #FFD700, 0 0 20px rgba(255, 215, 0, 0.5); /* Add a glowing effect to the star head */
+            z-index: 1; /* Ensure it's above the tail */
         }
+
         /* Ensure header text is readable over the dynamic background */
         .header-text-bg {
-            background-color: rgba(0, 0, 0, 0.4);
+            background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent dark background for text */
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
-            display: inline-block;
+            display: inline-block; /* To make padding/background work correctly */
         }
-        /* Ensure header image container allows full image display */
-        .header-image-container {
-            width: 100%;
-            max-height: 500px; /* Set a reasonable max height for the image */
-            overflow: visible; /* Allow image to display fully */
-        }
-        .header-image {
-            width: 100%;
-            height: auto;
-            object-fit: contain; /* Maintain aspect ratio, ensure full image is visible */
-            max-height: 500px; /* Prevent image from becoming too large */
-        }
+        /* Removed custom header-image-container and header-image CSS as Tailwind classes are used directly on img */
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8 text-gray-800">
-    <!-- Starry Background Container -->
+
+    <!-- Starry Background Container - fixed to viewport and behind content -->
     <div id="starry-background-container" class="fixed inset-0 bg-[#0d1117] z-[-1] overflow-hidden"></div>
 
     <!-- Firebase Setup Script -->
+    <!-- This script handles Firebase initialization and user authentication (anonymous or custom token).
+         It uses global variables __app_id, __firebase_config, and __initial_auth_token provided by the environment. -->
     <script type="module">
+        // Firebase SDK imports for app initialization and authentication
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // Access global variables for Firebase configuration and auth token
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Initialize Firebase app
         const app = initializeApp(firebaseConfig);
+        // Get Auth instance
         const auth = getAuth(app);
+
+        // Global variable to store the authenticated user ID (though not used directly for display anymore)
         let currentUserId = null;
+
+        // Async function to handle user authentication
         async function authenticateAndSetUserId() {
             try {
                 if (initialAuthToken) {
@@ -126,58 +139,76 @@
                 }
                 currentUserId = auth.currentUser?.uid || crypto.randomUUID();
                 console.log("Firebase initialized. User ID:", currentUserId);
+
             } catch (error) {
                 console.error("Firebase authentication failed:", error);
-                currentUserId = crypto.randomUUID();
+                currentUserId = crypto.randomUUID(); // Fallback to a random ID if authentication fails
                 console.warn("Using random user ID due to authentication failure.");
             }
         }
+
+        // Call the authentication function when the script loads
         authenticateAndSetUserId();
-        const numStars = 100;
-        const numShootingStars = 5;
+
+        // --- Dynamic Star and Shooting Star Generation ---
+        const numStars = 100; // Number of twinkling stars
+        const numShootingStars = 5; // Maximum number of shooting stars on screen at once
         const starryBackgroundContainer = document.getElementById('starry-background-container');
+
+        // Function to create a single static background star
         function createStar() {
             const star = document.createElement('div');
             star.classList.add('star');
-            const size = Math.random() * 3 + 1;
+            const size = Math.random() * 3 + 1; // Random size between 1px and 4px
             star.style.width = `${size}px`;
             star.style.height = `${size}px`;
-            star.style.left = `${Math.random() * 100}vw`;
-            star.style.top = `${Math.random() * 100}vh`;
-            star.style.animationDelay = `${Math.random() * 2}s`;
-            starryBackgroundContainer.appendChild(star);
+            star.style.left = `${Math.random() * 100}vw`; // Random horizontal position across viewport width
+            star.style.top = `${Math.random() * 100}vh`;  // Random vertical position across viewport height
+            star.style.animationDelay = `${Math.random() * 2}s`; // Random delay for twinkle effect to vary appearance
+            starryBackgroundContainer.appendChild(star); // Append to the background container
         }
+
+        // Function to create a single shooting star
         function createShootingStar() {
             const shootingStar = document.createElement('div');
             shootingStar.classList.add('shooting-star');
-            const startX = Math.random() * 30 - 30;
-            const startY = Math.random() * 30 - 30;
+            // Random start position, adjusted to ensure they begin off-screen in the top-left quadrant
+            const startX = Math.random() * 30 - 30; // Start between -30vw and 0vw
+            const startY = Math.random() * 30 - 30; // Start between -30vh and 0vh
             shootingStar.style.left = `${startX}vw`;
             shootingStar.style.top = `${startY}vh`;
-            shootingStar.style.animationDuration = `${Math.random() * 3 + 4}s`;
-            shootingStar.style.animationDelay = `${Math.random() * 5}s`;
-            starryBackgroundContainer.appendChild(shootingStar);
+            // Random duration for the shoot animation to vary speeds
+            shootingStar.style.animationDuration = `${Math.random() * 3 + 4}s`; // 4 to 7 seconds
+            shootingStar.style.animationDelay = `${Math.random() * 5}s`; // Random delay before it starts shooting
+            starryBackgroundContainer.appendChild(shootingStar); // Append to the background container
+
+            // Remove the shooting star after its animation completes to prevent accumulation in the DOM
             shootingStar.addEventListener('animationend', () => {
                 shootingStar.remove();
             });
         }
+
+        // Generate initial background stars when the page loads
         for (let i = 0; i < numStars; i++) {
             createStar();
         }
+
+        // Periodically generate new shooting stars to maintain the dynamic effect
         setInterval(() => {
             if (document.querySelectorAll('#starry-background-container .shooting-star').length < numShootingStars) {
                 createShootingStar();
             }
-        }, 3000);
+        }, 3000); // Attempt to create a new shooting star approximately every 3 seconds
+
     </script>
 
     <!-- Header Section -->
-    <header class="w-full text-center mb-10 py-6 rounded-xl shadow-lg relative">
-        <!-- Image container to ensure proper scaling -->
-        <div class="header-image-container mx-auto">
-            <img src="82c9d7ae4f98cbb341a78aa4b15bbad3.jpg" alt="毕业合照" class="header-image rounded-xl mb-4 sm:mb-6 lg:mb-8">
-        </div>
-        <!-- Text content -->
+    <header class="w-full text-center mb-10 py-6 rounded-xl shadow-lg relative overflow-hidden">
+        <!-- The uploaded image positioned at the top of the header -->
+        <!-- Image class updated for full display and responsive sizing -->
+        <img src="82c9d7ae4f98cbb341a78aa4b15bbad3.jpg" alt="毕业合照" class="w-full h-auto object-contain rounded-xl mb-4 sm:mb-6 lg:mb-8 mx-auto block max-w-4xl">
+
+        <!-- Text content with a semi-transparent background for readability over the image -->
         <div class="relative z-10 p-4">
             <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-2 header-text-bg">我们的班级留念</h1>
             <p class="text-lg sm:text-xl text-blue-100 header-text-bg">永远的青春，不变的情谊</p>
@@ -188,10 +219,12 @@
     <section class="w-full container bg-white p-8 mb-10 card">
         <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">亲爱的老师们</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Teacher Contact Card -->
             <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
                 <h3 class="text-xl font-semibold text-gray-900 mb-2">刘伟雄老师</h3>
                 <p class="text-gray-600 mb-1">手机: 13317426629</p>
             </div>
+            <!-- New Teacher Contact Card for Chen Xifeng -->
             <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
                 <h3 class="text-xl font-semibold text-gray-900 mb-2">陈西凤老师</h3>
                 <p class="text-gray-600 mb-1">微信: m393421865</p>
@@ -203,6 +236,7 @@
     <section class="w-full container bg-white p-8 mb-10 card">
         <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">同学名录</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Classmate Contact Cards based on provided image -->
             <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
                 <h3 class="text-xl font-semibold text-gray-900 mb-2">刘科</h3>
                 <p class="text-gray-600 mb-1">手机: 17657679196</p>
@@ -260,9 +294,7 @@
                 <p class="text-gray-600 mb-1">手机: 18873322149</p>
             </div>
             <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
-                <h3 class="text-xl font-semibold text-gray
-
--900 mb-2">易维政</h3>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">易维政</h3>
                 <p class="text-gray-600 mb-1">手机: 13081129913</p>
             </div>
             <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
@@ -318,7 +350,8 @@
 
     <!-- Footer Section -->
     <footer class="w-full text-center py-6 text-gray-500 text-sm">
-        <p>© 2025 班级留念网站. 保留所有权利.</p>
+        <p>&copy; 2025 班级留念网站. 保留所有权利.</p>
     </footer>
+
 </body>
 </html>
