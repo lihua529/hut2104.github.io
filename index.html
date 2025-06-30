@@ -9,11 +9,17 @@
     <!-- Google Fonts - Inter for a clean, modern typeface -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Apply Inter font family */
+        /* Ensure html and body take full viewport height and width for consistent fixed positioning */
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            /* body's background color is now applied to starry-background-container */
+        }
         body {
             font-family: 'Inter', sans-serif;
-            /* Body itself no longer has a background color; the starry-background-container will provide it */
-            /* Ensure body can scroll its content if it overflows */
+            /* Flexbox utilities for content centering are still on body */
         }
         /* Custom styles for elements with rounded corners and shadow, consistent with Tailwind's rounded-xl and shadow-md */
         .card {
@@ -57,7 +63,6 @@
             background: white;
             border-radius: 50%;
             animation: twinkle 1.5s infinite alternate; /* Twinkle animation */
-            /* z-index removed here as parent container manages it */
         }
 
         /* Base styles for shooting stars - now positioned absolutely within the fixed background container */
@@ -69,7 +74,6 @@
             background: linear-gradient(to left, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
             transform-origin: 100% 50%; /* Origin for rotation: right center of the tail */
             animation: shoot linear infinite; /* Shooting animation */
-            /* z-index removed here as parent container manages it */
             pointer-events: none; /* Ensure shooting stars don't interfere with mouse events */
         }
 
