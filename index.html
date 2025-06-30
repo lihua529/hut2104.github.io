@@ -13,8 +13,8 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #0d1117; /* Dark bluish-black for the night sky */
-            overflow: hidden; /* Prevent scrollbars from stars going out of bounds */
-            position: relative; /* Needed for absolute positioning of stars */
+            /* REMOVED: overflow: hidden; - This was preventing scrolling */
+            /* REMOVED: position: relative; - Not strictly needed for current layout and stars */
         }
         /* Custom styles for elements with rounded corners and shadow, consistent with Tailwind's rounded-xl and shadow-md */
         .card {
