@@ -92,14 +92,52 @@
         /* Ensure header image container allows full image display */
         .header-image-container {
             width: 100%;
-            max-height: 500px; /* Set a reasonable max height for the image */
-            overflow: visible; /* Allow image to display fully */
+            max-height: 500px;
+            overflow: visible;
         }
         .header-image {
             width: 100%;
             height: auto;
-            object-fit: contain; /* Maintain aspect ratio, ensure full image is visible */
-            max-height: 500px; /* Prevent image from becoming too large */
+            object-fit: contain;
+            max-height: 500px;
+            cursor: pointer; /* Indicate the image is clickable */
+        }
+        /* Modal for zoomed image */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+        }
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        /* Download button styles */
+        .download-btn {
+            display: none;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #2563eb;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .download-btn:hover {
+            background-color: #1d4ed8;
         }
     </style>
 </head>
@@ -107,7 +145,13 @@
     <!-- Starry Background Container -->
     <div id="starry-background-container" class="fixed inset-0 bg-[#0d1117] z-[-1] overflow-hidden"></div>
 
-    <!-- Firebase Setup Script -->
+    <!-- Modal for Zoomed Image -->
+    <div id="imageModal" class="modal">
+        <img id="zoomedImage" src="" alt="毕业合照">
+        <a id="downloadBtn" class="download-btn" href="#" download>下载照片</a>
+    </div>
+
+    <!-- Firebase Setup Script and Image Interaction Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -169,15 +213,58 @@
                 createShootingStar();
             }
         }, 3000);
+
+        // Image interaction logic
+        const headerImage = document.querySelector('.header-image');
+        const modal = document.getElementById('imageModal');
+        const zoomedImage = document.getElementById('zoomedImage');
+        const downloadBtn = document.getElementById('downloadBtn');
+        let longPressTimer;
+
+        // Click to open modal
+        headerImage.addEventListener('click', () => {
+            zoomedImage.src = headerImage.src;
+            modal.style.display = 'flex';
+            downloadBtn.style.display = 'none'; // Hide download button initially
+        });
+
+        // Close modal when clicking outside the image
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                downloadBtn.style.display = 'none';
+            }
+        });
+
+        // Long press to show download button
+        const startLongPress = () => {
+            longPressTimer = setTimeout(() => {
+                downloadBtn.style.display = 'block';
+                downloadBtn.href = headerImage.src;
+                downloadBtn.download = 'graduation_photo.jpg';
+            }, 1000); // 1 second for long press
+        };
+
+        const cancelLongPress = () => {
+            clearTimeout(longPressTimer);
+        };
+
+        // Handle mouse events
+        headerImage.addEventListener('mousedown', startLongPress);
+        headerImage.addEventListener('mouseup', cancelLongPress);
+        headerImage.addEventListener('mouseleave', cancelLongPress);
+
+        // Handle touch events for mobile
+        headerImage.addEventListener('touchstart', startLongPress);
+        headerImage.addEventListener('touchend', cancelLongPress);
+        headerImage.addEventListener('touchcancel', cancelLongPress);
     </script>
 
     <!-- Header Section -->
     <header class="w-full text-center mb-10 py-6 rounded-xl shadow-lg relative">
-        <!-- Image container to ensure proper scaling -->
         <div class="header-image-container mx-auto">
             <img src="82c9d7ae4f98cbb341a78aa4b15bbad3.jpg" alt="毕业合照" class="header-image rounded-xl mb-4 sm:mb-6 lg:mb-8">
         </div>
-        <!-- Text content -->
         <div class="relative z-10 p-4">
             <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-2 header-text-bg">我们的班级留念</h1>
             <p class="text-lg sm:text-xl text-blue-100 header-text-bg">永远的青春，不变的情谊</p>
@@ -260,65 +347,5 @@
                 <p class="text-gray-600 mb-1">手机: 18873322149</p>
             </div>
             <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
-                <h3 class="text-xl font-semibold text-gray
-
--900 mb-2">易维政</h3>
-                <p class="text-gray-600 mb-1">手机: 13081129913</p>
-            </div>
-            <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">彭欣</h3>
-                <p class="text-gray-600 mb-1">手机: 18983829581</p>
-            </div>
-            <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">廖原</h3>
-                <p class="text-gray-600 mb-1">手机: 13077043167</p>
-            </div>
-            <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">王尹杰</h3>
-                <p class="text-gray-600 mb-1">手机: 15156109134</p>
-            </div>
-            <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">易文君</h3>
-                <p class="text-gray-600 mb-1">手机: 15580776082</p>
-            </div>
-            <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">格桑丹增</h3>
-                <p class="text-gray-600 mb-1">手机: 18227022526</p>
-            </div>
-            <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">何瞻闻</h3>
-                <p class="text-gray-600 mb-1">手机: 13017132089</p>
-            </div>
-            <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">余杜</h3>
-                <p class="text-gray-600 mb-1">手机: 17651030109</p>
-            </div>
-            <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">李杨明</h3>
-                <p class="text-gray-600 mb-1">手机: 13342569639</p>
-            </div>
-            <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">韩志远</h3>
-                <p class="text-gray-600 mb-1">手机: 18074328515</p>
-            </div>
-            <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">孙宇</h3>
-                <p class="text-gray-600 mb-1">手机: 13235410725</p>
-            </div>
-            <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">熊远超</h3>
-                <p class="text-gray-600 mb-1">手机: 13559146644</p>
-            </div>
-            <div class="bg-gray-50 p-6 rounded-lg shadow-sm flex flex-col items-center text-center">
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">王玮珺</h3>
-                <p class="text-gray-600 mb-1">手机: 17874494616</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer Section -->
-    <footer class="w-full text-center py-6 text-gray-500 text-sm">
-        <p>© 2025 班级留念网站. 保留所有权利.</p>
-    </footer>
-</body>
-</html>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">易维政</h3>
+                <p class="text-gray-600 mb-1">手机
